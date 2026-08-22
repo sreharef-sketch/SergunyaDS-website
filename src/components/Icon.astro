@@ -1,0 +1,49 @@
+---
+import { icon } from '@fortawesome/fontawesome-svg-core';
+import {
+  faPatreon,
+  faBluesky,
+  faInstagram,
+} from '@fortawesome/free-brands-svg-icons';
+import { faEnvelope, faXmark } from '@fortawesome/free-solid-svg-icons';
+
+const icons = {
+  "bluesky": faBluesky,
+  "instagram": faInstagram,
+  "envelope": faEnvelope,
+  "patreon": faPatreon,
+  "xmark": faXmark,
+};
+
+interface Props {
+  name: keyof typeof icons;
+  size?: string;
+  color?: string;
+}
+
+const { name, size = "1em", color = "var(--cream)" } = Astro.props;
+
+const svg = icon(icons[name]).html.join("");
+---
+
+<span
+  class="fa-icon"
+  style={`font-size: ${size}; color: ${color}`}
+  aria-hidden="true"
+  set:html={svg}
+/>
+
+<style>
+  .fa-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .fa-icon :global(svg) {
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+  }
+</style>

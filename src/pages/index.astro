@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import ProductGrid from '../components/ProductGrid.astro';
+import ProductModal from '../components/ProductModal.astro';
+import { products, site } from '../lib/config';
+import { Image } from "astro:assets";
+import heroDollImage from '../assets/hero-doll.png';
+---
+
+<BaseLayout>
+  <section id="hero" class="panel hero">
+    <Header />
+    <div class="panel-content hero-content">
+      <div class="hero-layer hero-layer-back hero-title-layer">
+        <h1 class="hero-title">ORIGINAL <br> BJD DOLLS</h1>
+      </div>
+      <div class="hero-layer hero-layer-back hero-byline-layer">
+        <h2 class="hero-byline"><span class="accent">by</span> <span class="underline uppercase">Sergunya</span></h2>
+      </div>
+        <div class="hero-doll-wrapper">
+          <Image class="hero-doll" src={heroDollImage} alt="An original unicorn ball-jointed doll by SergunyaDS" loading="eager"/>
+      </div>
+    </div>
+  </section>
+  <section id="bjd-dolls" class="panel">
+    <header class="panel-header">
+      <h1 class="panel-header-title">BJD doll STL files</h1>
+    </header>
+    <div class="panel-content">
+      <ProductGrid {products} />
+    </div>
+  </section>
+  <ProductModal />
+</BaseLayout>

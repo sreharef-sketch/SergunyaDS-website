@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import { info, links } from '../lib/config';
+---
+
+<BaseLayout title="Info — SergunyaDS" description="About SergunyaDS dolls, self-printing, and personal-use licensing.">
+  <Header />
+  <section class="info-page panel page-panel" aria-labelledby="info-title">
+    <div class="section-heading section-heading--left">
+      <p class="eyebrow">Artist & maker</p>
+      <h1 id="info-title">{info.title}</h1>
+      <p>{info.intro}</p>
+    </div>
+    <div class="info-grid">
+      <article><h2>{info.printing_title}</h2><p>{info.printing_text}</p></article>
+      <article><h2>{info.license_title}</h2><p>{info.license_text}</p></article>
+      <article class="contact-card"><h2>Find SergunyaDS</h2><a href={links.patreon} target="_blank" rel="noreferrer">Patreon ↗</a><a href={links.x} target="_blank" rel="noreferrer">X ↗</a><a href={links.discord} target="_blank" rel="noreferrer">Discord ↗</a><a href={links.email}>Email ↗</a></article>
+    </div>
+  </section>
+</BaseLayout>

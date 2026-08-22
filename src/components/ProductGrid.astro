@@ -1,0 +1,56 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import type { Product } from '../lib/config';
+interface Props { products: Product[] }
+const { products } = Astro.props;
+
+const productImageModules = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/products/**/*.{jpg,jpeg,png,webp,avif}",
+  { eager: true },
+);
+
+function getProductImage(path?: string): ImageMetadata | undefined {
+  if (!path) return undefined;
+  const module = productImageModules[`../assets/products/${path}`];
+  if (!module) 
+    throw new Error(`Product image \"${path}\" was not found in src/assets/products.`);
+
+  return module.default;
+}
+---
+
+<div class="product-grid">
+  <div class="product-card product-card--intro" >
+    <span class="product-card--intro-message">
+      <strong class="uppercase">In this section, <br/> you can find files <br/> to print and assemble <br/> a doll frame by yourself.  </strong>
+    </span>
+  </div>
+  {products.length > 0 ? products.map((product) => {
+    const productImage = getProductImage(product.preview);
+    const modalPreviews = product.previews
+      .map((path) => getProductImage(path)?.src)
+      .filter((url): url is string => Boolean(url));
+    const modalProduct = JSON.stringify({ ...product, previews: modalPreviews });
+    return (
+      <button
+        class="product-card"
+        type="button"
+        data-product={modalProduct}
+        aria-label={`Open details for ${product.name}`}
+      >
+        {productImage && (<Image src={productImage} alt={product.alt} class="product-card-preview" />)}
+        <div class="product-card-details">
+          <strong class="product-card-details-name">{product.name}</strong>
+          <span class="product-card-details-price">
+            ${product.price}
+            <small>USD</small>
+          </span>
+        </div>
+      </button>
+    )}) : (
+      <div>
+        TODO: HANDLE EMPTY PRODUCTS
+      </div>
+    )}
+</div>

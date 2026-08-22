@@ -1,0 +1,13 @@
+---
+import { links, site } from '../lib/config';
+import Icon from "./Icon.astro";
+---
+
+<footer class="site-footer">
+  <div class="social-links" aria-label="SergunyaDS links">
+    <a aria-label="My Patreon page" href={links.patreon} target="_blank" rel="noreferrer"><Icon size="2rem" name="patreon"/></a>
+    <a aria-label="My Bluesky page" href={links.bluesky} target="_blank" rel="noreferrer"><Icon size="2rem" name="bluesky"/></a>
+    <a aria-label="My Instagram page" href={links.instagram} target="_blank" rel="noreferrer"><Icon size="2rem" name="instagram"/></a>
+    <a aria-label="My email" href={links.email}><Icon size="2rem" name="envelope"/></a>
+  </div>
+</footer>

@@ -1,0 +1,29 @@
+---
+const base = import.meta.env.BASE_URL;
+const current = Astro.url.pathname;
+const nav = [
+  { label: 'Info', href: `${base}info/` },
+  { label: 'Main', href: base },
+  { label: 'Gallery', href: `${base}gallery/` },
+];
+---
+
+<header class="site-header panel-header">
+  <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">Menu</button>
+  <nav aria-label="Primary navigation">
+    {nav.map((item) => (
+      <a href={item.href} aria-current={current === item.href ? 'page' : undefined}>{item.label}</a>
+    ))}
+  </nav>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const nav = document.querySelector<HTMLElement>('.site-header nav');
+  toggle?.addEventListener('click', () => {
+    console.log("toggle");
+    const open = toggle.getAttribute('aria-expanded') !== 'true';
+    toggle.setAttribute('aria-expanded', String(open));
+    nav?.classList.toggle('is-open', open);
+  });
+</script>

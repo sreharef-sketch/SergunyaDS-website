@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import { gallery } from '../lib/config';
+---
+
+<BaseLayout title="Gallery — SergunyaDS" description="Renders, print tests, and work in progress from SergunyaDS.">
+  <Header />
+  <section class="gallery-page panel page-panel" aria-labelledby="gallery-title">
+    <div class="section-heading section-heading--left">
+      <p class="eyebrow">Selected work</p>
+      <h1 id="gallery-title">Gallery</h1>
+      <p>Renders, printed pieces, and sculpting studies from the workshop.</p>
+    </div>
+    <div class="mosaic-grid">
+      {gallery.map((item, index) => (
+        <button class:list={['mosaic-item', `ratio-${item.ratio}`, item.featured && 'is-featured']} type="button" data-gallery={JSON.stringify(item)} aria-label={`Open ${item.caption || item.alt}`}>
+          {item.image ? <img src={item.image} alt={item.alt} loading="lazy" /> : <span class:list={['gallery-placeholder', `placeholder-${(index % 4) + 1}`]} aria-hidden="true">Artwork<br />coming soon</span>}
+          {item.caption && <span class="mosaic-caption">{item.caption}</span>}
+        </button>
+      ))}
+    </div>
+  </section>
+
+  <dialog class="gallery-lightbox" aria-labelledby="lightbox-caption">
+    <button class="modal-close" type="button" aria-label="Close image">×</button>
+    <img hidden alt="" />
+    <div class="lightbox-placeholder" aria-hidden="true">Artwork<br />coming soon</div>
+    <p id="lightbox-caption"></p>
+  </dialog>
+</BaseLayout>
+
+<script>
+  type Gallery = { image?: string; alt: string; caption?: string };
+  const lightbox = document.querySelector<HTMLDialogElement>('.gallery-lightbox');
+  const lightboxImage = lightbox?.querySelector<HTMLImageElement>('img');
+  const lightboxPlaceholder = lightbox?.querySelector<HTMLElement>('.lightbox-placeholder');
+  const caption = lightbox?.querySelector<HTMLElement>('#lightbox-caption');
+  document.querySelectorAll<HTMLButtonElement>('[data-gallery]').forEach((item) => item.addEventListener('click', () => {
+    const entry = JSON.parse(item.dataset.gallery || '{}') as Gallery;
+    if (!lightbox || !lightboxImage || !lightboxPlaceholder || !caption) return;
+    lightboxImage.hidden = !entry.image;
+    lightboxPlaceholder.hidden = Boolean(entry.image);
+    lightboxImage.src = entry.image || '';
+    lightboxImage.alt = entry.alt;
+    caption.textContent = entry.caption || '';
+    lightbox.showModal();
+  }));
+  lightbox?.querySelector('.modal-close')?.addEventListener('click', () => lightbox.close());
+  lightbox?.addEventListener('click', (event) => { if (event.target === lightbox) lightbox.close(); });
+</script>

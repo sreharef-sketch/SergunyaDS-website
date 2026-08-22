@@ -2,7 +2,7 @@
 
 ## Status
 
-Planning in progress. Decisions are recorded here as they are made.
+Implementation in progress. Decisions are recorded here as they are made.
 
 ## Source references
 
@@ -18,6 +18,8 @@ Planning in progress. Decisions are recorded here as they are made.
 - Dark, textured, editorial presentation with warm off-white typography and red accents.
 - Rounded, outlined content panels.
 - A hero featuring a doll sculpture, large serif display type, restrained navigation, and social links.
+- On the Main page, the navigation and hero form one continuous outlined panel; the header is not sticky.
+- The current hero artwork is `references/hero-doll.png`, bottom-aligned in the centre of the composition.
 - A grid-led STL files section with framed product cards.
 
 ## Confirmed scope
@@ -31,7 +33,7 @@ Planning in progress. Decisions are recorded here as they are made.
 ### STL product grid
 
 - Each card represents one printable STL doll and includes a representative image.
-- Use a consistent, modestly cropped **3:4 portrait** image ratio for cards.
+- Use a consistent, modestly cropped **3:5 portrait** image ratio for cards.
 - Hovering a card slightly zooms its image.
 - A detail panel rises in from the bottom on hover.
 - The detail panel shows the doll name and price in USD.
@@ -138,9 +140,6 @@ The generated site reads the configuration at build time; static source images l
 - Use clearly marked placeholders for the hero, product previews, and Gallery during initial implementation.
 - The author will later supply real renders/photos; replacing placeholder assets is required before launch.
 
-## Open decisions
+## Remaining launch inputs
 
-- Gallery content and purpose.
 - Final external URLs, editorial copy, and real artwork (required before public launch).
-- Brand assets, copy, languages, and social/contact destinations.
-- Technology, hosting, content-management, and responsive behaviour.

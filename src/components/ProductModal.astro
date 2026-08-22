@@ -1,0 +1,83 @@
+---
+import Icon from "./Icon.astro";
+---
+
+<dialog id="product-modal" class="modal" aria-labelledby="modal-title">
+  <div class="modal-shell">
+    <div class="modal-thumbnails"></div>
+    <div class="modal-preview">
+      <img alt="Preview for a BJD doll" src="" class="modal-preview-image" />
+    </div>
+    <div class="modal-content">
+      <div class="modal-content-details">
+        <h1 class="modal-content-title">Product name</h1>
+        <p class="modal-content-price">Price</p>
+        <p class="modal-content-description">Description</p>
+      </div>
+      <a class="button button--primary fb modal-content-buy" target="_blank" rel="noreferrer">Buy on Patreon</a>
+    </div>
+  </div>
+</dialog>
+
+<script>
+type Product = {
+  name: string;
+  price: string;
+  description: string;
+  // details: string[];
+  patreonUrl: string;
+  previews: string[];
+  alt: string;
+};
+
+const modal = document.querySelector<HTMLDialogElement>('#product-modal');
+const preview = modal?.querySelector<HTMLImageElement>('.modal-preview-image');
+const thumbnails = modal.querySelector(".modal-thumbnails");
+const title = modal.querySelector(".modal-content-title");
+const description = modal.querySelector(".modal-content-description");
+const price = modal.querySelector(".modal-content-price");
+const buy = modal.querySelector(".modal-content-buy");
+
+function selectPreview(url: string, alt: string, button?: HTMLButtonElement) {
+  if (!preview) return;
+  preview.src = url;
+  preview.alt = alt;
+  thumbnails?.querySelectorAll('button').forEach((item) => item.setAttribute('aria-current', 'false'));
+  button?.setAttribute('aria-current', 'true');
+}
+
+modal?.addEventListener('click', (event) => {
+  if (event.target === modal) modal.close();
+});
+document.querySelectorAll<HTMLButtonElement>('[data-product]').forEach((card) => {
+  card.addEventListener('click', () => {
+    const product = JSON.parse(card.dataset.product || '{}') as Product;
+    if (!modal || !title || !description || !price || !buy || !thumbnails) return;
+    title.textContent = product.name;
+    description.textContent = product.description;
+    price.innerHTML = `$${product.price} <small>USD</small>`;
+    buy.href = product.patreonUrl;
+    thumbnails.replaceChildren();
+    const previews = product.previews.length ? product.previews : [''];
+    previews.forEach((url, index) => {
+      const thumbnail = document.createElement('button');
+      thumbnail.type = 'button';
+      thumbnail.className = 'modal-thumbnail';
+      thumbnail.setAttribute('aria-label', `Show preview ${index + 1}`);
+      if (url) {
+        const thumbnail_img = document.createElement('img');
+        thumbnail_img.src = url;
+        thumbnail_img.alt = '';
+        thumbnail_img.loading = 'lazy';
+        thumbnail.append(thumbnail_img);
+      } else {
+        thumbnail.textContent = 'Preview';
+      }
+      thumbnail.addEventListener('click', () => selectPreview(url, product.alt, thumbnail));
+      thumbnails.append(thumbnail);
+      if (index === 0) selectPreview(url, product.alt, thumbnail);
+    });
+    modal.showModal();
+  });
+});
+</script>
