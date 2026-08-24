@@ -5,7 +5,16 @@ import ProductGrid from '../components/ProductGrid.astro';
 import ProductModal from '../components/ProductModal.astro';
 import { products, site } from '../lib/config';
 import { Image } from "astro:assets";
-import heroDollImage from '../assets/hero-doll.png';
+
+const images = import.meta.glob<{ default: ImageMetadata }>(
+  `../assets/*.{png,jpg,jpeg,webp,avif}`,
+  { eager: true },
+);
+const heroDollImage = images[`../assets/${site.hero_image}`]?.default;
+
+if (!heroDollImage) {
+  throw new Error(`Hero image not found: ${site.hero_image}`);
+}
 ---
 
 <BaseLayout>
