@@ -1,0 +1,187 @@
+---
+import { gallery } from '../lib/config';
+import { Image } from "astro:assets";
+
+const galleryImageModules = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/gallery/**/*.{jpg,jpeg,png,webp,avif}",
+  { eager: true },
+);
+
+function getGalleryImage(path?: string): ImageMetadata | undefined {
+  if (!path) return undefined;
+
+  const module = galleryImageModules[`../assets/gallery/${path}`];
+  if (!module) throw new Error(`Gallery image \"${path}\" was not found in src/assets/gallery.`);
+
+  return module.default;
+}
+---
+
+<div class="mosaic-grid">
+  {gallery.map((item) => {
+    const galleryImage = getGalleryImage(item.image);
+    if (!galleryImage) return null;
+
+    return (
+      <button
+        class="mosaic-item"
+        type="button"
+        data-gallery={JSON.stringify(item)}
+        data-ratio={galleryImage.width / galleryImage.height}
+        aria-label=`Open ${item.caption || item.alt}`
+        >
+        <div class="mosaic-item__content">
+          <Image src={galleryImage} alt={item.alt} loading="lazy" />
+          {/* {item.caption && <span class="mosaic-caption">{item.caption}</span>} */}
+        </div>
+      </button>
+      );
+    })}
+</div>
+
+<style>
+.mosaic-grid {
+    position: relative;
+    width: 100%;
+}
+
+.mosaic-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    box-sizing: border-box;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    will-change: transform;
+}
+
+.mosaic-item:focus-visible {
+    outline: 2px solid var(--accent, #c0392b);
+    outline-offset: -2px;
+}
+
+.mosaic-item__content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.mosaic-item img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .mosaic-item {
+        transition: transform 0.35s ease-out, width 0.35s ease-out, height 0.35s ease-out;
+    }
+
+    .mosaic-item img {
+        transition: transform 0.4s ease-out;
+    }
+
+    .mosaic-item:hover img,
+    .mosaic-item:focus-visible img {
+        transform: scale(1.05);
+    }
+}
+</style>
+
+<script>
+const GAP = 6;
+// Deterministic per-row target-height multipliers. Cycling these by row index
+// makes some rows noticeably taller/shorter without any per-item tuning, and keeps
+// the layout stable across reflows and when images are added/removed.
+const ROW_HEIGHT_VARIATION = [1.0, 1.28, 0.82, 1.42, 0.95, 1.15];
+
+// Target row height per breakpoint. This is the main "how big are the tiles" knob:
+// a larger target puts fewer tiles in each row, so each one renders bigger.
+function baseRowHeight(width: number): number {
+  if (width < 600) return 320;
+  if (width < 900) return 380;
+  return 440;
+}
+
+function layoutGrid(grid: HTMLElement) {
+  const items = Array.from(
+    grid.querySelectorAll<HTMLElement>(".mosaic-item"),
+  );
+  if (!items.length) return;
+
+  const width = grid.clientWidth;
+  if (width <= 0) return;
+
+  const ratios = items.map((item) => {
+    const ratio = Number(item.dataset.ratio);
+    return Number.isFinite(ratio) && ratio > 0 ? ratio : 1;
+  });
+
+  const base = baseRowHeight(width);
+  const n = items.length;
+
+  let i = 0;
+  let y = 0;
+  let rowIndex = 0;
+
+  while (i < n) {
+    const target = base * ROW_HEIGHT_VARIATION[rowIndex % ROW_HEIGHT_VARIATION.length];
+
+    const row: number[] = [];
+    let ratioSum = 0;
+    let height = Infinity;
+
+    // Greedily collect items until the width-filling height drops to the target.
+    while (i < n) {
+      row.push(i);
+      ratioSum += ratios[i];
+      height = (width - GAP * (row.length - 1)) / ratioSum;
+      i++;
+      if (height <= target) break;
+    }
+
+    // A short final row shouldn't be stretched to a giant height.
+    const isLast = i >= n;
+    if (isLast && height > target) height = target;
+
+    let x = 0;
+    for (const index of row) {
+      const w = ratios[index] * height;
+      const el = items[index];
+      el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+      el.style.width = `${w}px`;
+      el.style.height = `${height}px`;
+      x += w + GAP;
+    }
+
+    y += height + GAP;
+    rowIndex++;
+  }
+
+  grid.style.height = `${Math.round(y - GAP)}px`;
+}
+
+const grids = document.querySelectorAll<HTMLElement>(".mosaic-grid");
+
+grids.forEach((grid) => {
+  const relayout = () => layoutGrid(grid);
+
+  relayout();
+
+  // Reflow when the container width changes (responsive layout, font loads, etc.).
+  const resizeObserver = new ResizeObserver(relayout);
+  resizeObserver.observe(grid);
+
+  // Astro pages can be navigated without a full page reload; clean up on removal.
+  return () => {
+    resizeObserver.disconnect();
+  };
+});
+</script>
