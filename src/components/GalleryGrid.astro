@@ -32,7 +32,9 @@ function getGalleryImage(path?: string): ImageMetadata | undefined {
         >
         <div class="mosaic-item__content">
           <Image src={galleryImage} alt={item.alt} loading="lazy" />
-          {/* {item.caption && <span class="mosaic-caption">{item.caption}</span>} */}
+          <div class="mosaic-item__overlay">
+            {item.caption && <span class="mosaic-caption">{item.caption}</span>}
+          </div>
         </div>
       </button>
       );
@@ -79,6 +81,46 @@ function getGalleryImage(path?: string): ImageMetadata | undefined {
     object-fit: cover;
 }
 
+.mosaic-item__overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 7rem;
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, rgba(17, 23, 27, 0));
+    transition: background 0.4s ease;
+}
+
+.mosaic-item:hover .mosaic-item__overlay,
+.mosaic-item:focus-visible .mosaic-item__overlay {
+    background: linear-gradient(to bottom, transparent, rgba(17, 23, 27, 0.85));
+}
+
+.mosaic-caption {
+    color: var(--cream);
+    font-family: var(--serif);
+    font-size: 0.875rem;
+    font-style: italic;
+    line-height: 1.55;
+    text-align: left;
+    width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease 0.08s;
+}
+
+.mosaic-item:hover .mosaic-caption,
+.mosaic-item:focus-visible .mosaic-caption {
+    opacity: 1;
+}
+
 @media (prefers-reduced-motion: no-preference) {
     .mosaic-item {
         transition: transform 0.35s ease-out, width 0.35s ease-out, height 0.35s ease-out;
@@ -91,6 +133,13 @@ function getGalleryImage(path?: string): ImageMetadata | undefined {
     .mosaic-item:hover img,
     .mosaic-item:focus-visible img {
         transform: scale(1.05);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mosaic-item__overlay,
+    .mosaic-caption {
+        transition: none;
     }
 }
 </style>
